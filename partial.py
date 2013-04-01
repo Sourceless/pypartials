@@ -1,26 +1,34 @@
+"""
+pypartial.partial
+
+A decorator class for allowing automatic partial application
+on a function.
+
+Limitations: positional arguments only.
+"""
 from inspect import getargspec
 
-class partial(object):
+
+class Partial(object):
     """
-    Takes a function, returning a partial object which 
+    Takes a function, returning a partial object which
     captures arguments until there's enough to call the function.
     """
-    def __init__(self, f, *varargs):
-        self._f = f
-        self._min_args = len(getargspec(f).args)
+    def __init__(self, func, *varargs):
+        self._func = func
+        self._min_args = len(getargspec(func).args)
         self._positional_args = list(varargs)
 
-        self.__call__() # Execute immediately if there's enough arguments.
-
+        self.__call__()  # Execute immediately if there's enough arguments.
 
     def __call__(self, *varargs):
         self._positional_args.extend(list(varargs))
 
         if self._enough_args():
-            return self._f(*self._positional_args)
+            return self._func(*self._positional_args)
+            # The line above currently raises a warning while linting.
         else:
             return self
-
 
     def _enough_args(self):
         """
@@ -35,9 +43,3 @@ class partial(object):
             # Author's Note: right now it doesn't deal with there being
             #                too many arguments. Instead it just lets the
             #                function fail.
-
-
-def test():
-    f = partial(lambda a,b,c: (a,b,c))
-    g = f('a', 'b')
-    print g('c')
